@@ -1,0 +1,112 @@
+@import "./colors.css";
+
+* {
+    margin: 0px;
+    padding: 0px;
+    color: var(--text-color);
+    font-family: "Teko";
+    font-weight: 600;
+}
+
+body {
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 32px;
+    user-select: none;
+}
+
+p, input, button {
+    font-size: 20px;
+}
+
+.float {
+
+    position: absolute;
+    background-color: var(--background-color);
+    border-radius: 5px;
+    padding: 10px;
+    
+    width: 280px;
+    height: 140px;
+
+    left: calc(50vw - 140px);
+    top: calc(50vh - 70px);
+}
+
+.float title {
+    width: 100%;
+    text-align: left;
+}
+
+.float button {
+    color: var(--alt-text-color);
+    padding: 2px 5px; 
+}
+
+.float input {
+    width: 265px;
+}
+
+.float button {
+    width: 130px;
+    top: unset;
+    bottom: 10px;
+    position: absolute
+}
+
+.exportmenu .e3,
+.importmenu .e3 {
+    left: unset;
+    right: 10px;
+}
+
+.exportmenu .e2,
+.importmenu .e2 {
+    right: unset;
+    left: 10px;
+}
+
+.fileinput {
+    color: var(--text-color);
+}
+
+.topbar {
+    position: absolute;
+
+    top: 0px;
+    left: 0px;
+
+    width: 100vw;
+    height: auto;
+
+    background-color: var(--background-color)
+}
+
+.topbar button {
+    padding: 2px 15px;
+    background-color: rgba(0, 0, 0, 0);
+    border: none;
+
+    text-align: center;
+}
+
+.topbar button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.contextmenu {
+    position: absolute;
+    background-color: var(--background-color);
+    
+    width: 150px;
+    height: auto;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.contextmenu button {
+    text-align: left;
+}
