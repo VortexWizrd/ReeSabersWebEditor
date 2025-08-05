@@ -41,12 +41,12 @@ export default class ImportMenu extends Element implements IElement {
 
 
         this.subElements[2].dom.addEventListener("click", (e) => {
-            this.file.import(this.inputFile);
+            this.file.import(this.inputFile, true);
             this.close();
         })
 
         this.subElements[3].dom.addEventListener("click", (e) => {
-            this.file.importModules(this.inputFile);
+            this.file.import(this.inputFile, false);
             this.close();
         })
     }

@@ -1,4 +1,4 @@
-import IColor from "../interfaces/iColor";
+import IColor from "../interfaces/base/iColor";
 import IControlPoint from "../interfaces/iControlPoint";
 
 export default class ControlPoint implements IControlPoint {

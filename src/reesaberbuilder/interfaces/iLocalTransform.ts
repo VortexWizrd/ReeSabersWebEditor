@@ -1,4 +1,4 @@
-import IVector3 from "./iVector3";
+import IVector3 from "./base/iVector3";
 
 export default interface ILocalTransform {
     Position: IVector3,

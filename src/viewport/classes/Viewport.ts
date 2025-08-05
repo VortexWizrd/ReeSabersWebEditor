@@ -21,6 +21,7 @@ export default class Viewport implements IViewport {
             this.resizeWindow();
         });
 
+        // please fix to loadmodel only on file update
         this.renderer.setAnimationLoop(() => {
           this.moveCamera();
           this.loadModel();
@@ -405,11 +406,12 @@ export default class Viewport implements IViewport {
 
     loadModel(): void {
         this.clearModel();
-        for (let module in this.file.Modules) {
-            if (this.file.Modules[module].ModuleId == "reezonate.blur-saber") {
-                let saber = this.file.Modules[module];
+        let flatmodules = this.file.softflatten();
+        for (let module in flatmodules) {
+            if (flatmodules[module].ModuleId == "reezonate.blur-saber") {
+                let saber = flatmodules[module];
                 
-                let v = this.calculateVertices(saber, this.file.Modules[module].Config.SaberSettings.saberProfile.interpolationType);
+                let v = this.calculateVertices(saber, flatmodules[module].Config.SaberSettings.saberProfile.interpolationType);
         
                 let geometry = new THREE.BufferGeometry();
                 geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(v), 3));

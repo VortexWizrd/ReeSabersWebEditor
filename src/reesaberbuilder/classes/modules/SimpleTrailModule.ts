@@ -1,8 +1,9 @@
 import IModule from "../../interfaces/iModule";
 import LocalTransform from "../LocalTransform";
 import Vector3 from "../Vector3";
+import EmptyModule from "./EmptyModule";
 
-export default class SimpleTrailModule implements IModule {
+export default class SimpleTrailModule extends EmptyModule {
     ModuleId = "reezonate.simple-trail";
     Version = 1;
     Config = {
@@ -20,5 +21,6 @@ export default class SimpleTrailModule implements IModule {
             new Vector3(0, 0, 0)
         )
     };
+    Children: IModule[] = [];
     
 }
