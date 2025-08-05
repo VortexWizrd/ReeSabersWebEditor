@@ -13,7 +13,6 @@ export default class EmptyModule implements IModule {
         let newModules: IModule[] = [];
 
         for (let module of this.Children) {
-            console.log("flatten: " + module.Config.Name);
             module.flatten();
             newModules = newModules.concat(module);
         }

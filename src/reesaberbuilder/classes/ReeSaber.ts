@@ -22,7 +22,7 @@ export default class ReeSaber implements IReeSaber {
 
     dataToModule(data: IModule): IModule {
         let newModule: IModule;
-        let oldModuleChildren = data.Children;
+        let oldModuleChildren = data.Children || [];
         let newModuleChildren: IModule[] = [];
 
         for (let module of oldModuleChildren) {
