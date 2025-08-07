@@ -15,7 +15,7 @@ export default interface IViewport {
 
     clearModel(): void,
 
-    calculateVertices(module: BlurSaberModule): number[],
+    calculateVertices(module: BlurSaberModule, interpolationType: number): number[],
 
     loadModel(): void,
     

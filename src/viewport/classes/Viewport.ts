@@ -3,8 +3,9 @@
 import * as THREE from 'three';
 import IViewport from '../interfaces/iViewport';
 import { BlurSaberModule, ReeSaber } from '../../reesaberbuilder';
-import Color from '../../reesaberbuilder/classes/Color';
+import Color from '../../reesaberbuilder/classes/base/Color';
 import IModule from '../../reesaberbuilder/interfaces/iModule';
+import IColor from '../../reesaberbuilder/interfaces/base/iColor';
 
 export default class Viewport implements IViewport {
     file: ReeSaber;
@@ -93,319 +94,298 @@ export default class Viewport implements IViewport {
         this.model = new THREE.Group();
     }
 
+    calculateVertex(value: any, thickness: number, index: number, verticalResolution: number, type: string): number {
+      if (typeof value != "number") console.error("calculateVertex: value is not a number");
+      
+      switch (type) {
+        case "cos":
+          return value * thickness * Math.cos(((index) / verticalResolution) * 2 * Math.PI);
+        case "sin":
+          return value * thickness * Math.sin(((index) / verticalResolution) * 2 * Math.PI);
+        default:
+          return 0;
+      }
+    }
+
     calculateVertices(module: BlurSaberModule, interpolationType: number): number[] {
         let v: number[] = [];
 
-        let profile = module.Config.SaberSettings.saberProfile;
-        let thickness = module.Config.SaberSettings.thickness * 0.0224 / 2;
-        let depth = module.Config.SaberSettings.zOffsetTo - module.Config.SaberSettings.zOffsetFrom;
+        const profile = module.Config.SaberSettings.saberProfile;
+        const thickness = module.Config.SaberSettings.thickness * 0.0224 / 2;
+        const depth = module.Config.SaberSettings.zOffsetTo - module.Config.SaberSettings.zOffsetFrom;
 
-        // constant
-        if (interpolationType == 0) {
-          for (let point = 0; point < profile.controlPoints.length; point++) {
-            if (point == profile.controlPoints.length - 1 && module.Config.SaberSettings.endCap == false) {
+        const startCap = module.Config.SaberSettings.startCap
+        const endCap = module.Config.SaberSettings.endCap
 
-            } else {
-              for (let i = 0; i < module.Config.SaberSettings.verticalResolution; i++) {
-                if (point == 0 && module.Config.SaberSettings.startCap == true) {
-                  v.push(0, module.Config.SaberSettings.zOffsetFrom, 0) 
-                  v.push(
-                      //@ts-ignore
-                      profile.controlPoints[point].value * thickness * Math.cos(((i) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                      module.Config.SaberSettings.zOffsetFrom,
-                      //@ts-ignore
-                      profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                  )
-                  v.push(
-                      //@ts-ignore
-                      profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                      module.Config.SaberSettings.zOffsetFrom,
-                      //@ts-ignore
-                      profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                  )
-              }
-              if (profile.controlPoints[point-1]) {
-                v.push(
-                  //@ts-ignore
-                  profile.controlPoints[point-1].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                  profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                  //@ts-ignore
-                  profile.controlPoints[point-1].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-              )
-              v.push(
-                //@ts-ignore
-                profile.controlPoints[point].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                //@ts-ignore
-                profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-              )
-              v.push(
-                //@ts-ignore
-                profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                //@ts-ignore
-                profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-            )
-            v.push(
-              //@ts-ignore
-              profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-              profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-              //@ts-ignore
-              profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-          )
-              v.push(
-                  //@ts-ignore
-                  profile.controlPoints[point-1].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                  profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                  //@ts-ignore
-                  profile.controlPoints[point-1].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-              )
-              v.push(
-                //@ts-ignore
-                profile.controlPoints[point-1].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                //@ts-ignore
-                profile.controlPoints[point-1].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-            )
-              
-              }
-              v.push(
-                //@ts-ignore
-                profile.controlPoints[point].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                //@ts-ignore
-                profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-              )
-              if(profile.controlPoints[point+1]) {
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    profile.controlPoints[point+1].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    profile.controlPoints[point+1].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
+        const zOffsetFrom = module.Config.SaberSettings.zOffsetFrom
+        const zOffsetTo = module.Config.SaberSettings.zOffsetTo
 
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    profile.controlPoints[point+1].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
-            } else {
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    module.Config.SaberSettings.zOffsetTo,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    module.Config.SaberSettings.zOffsetTo,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
+        const controlPoints = profile.controlPoints
+        
+        const verticalResolution = module.Config.SaberSettings.verticalResolution
+        const horizontalResolution = module.Config.SaberSettings.horizontalResolution
 
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    module.Config.SaberSettings.zOffsetTo,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
+        switch (interpolationType) {
 
+          // Constant
+          case 0:
+            for (let point = 0; point < controlPoints.length; point++) {
 
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    module.Config.SaberSettings.zOffsetTo,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
-                v.push(
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.cos(((i) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                    module.Config.SaberSettings.zOffsetTo,
-                    //@ts-ignore
-                    profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                )
-                v.push(
-                    0, module.Config.SaberSettings.zOffsetTo, 0
-                )
-                
-                
-            }
-              }
-            }
-          }
+              if (typeof controlPoints[point].value != "number") break;
 
-        // linear
-        } else if (true) {
-          for (let point = 0; point < profile.controlPoints.length; point++) {
-            if (point == profile.controlPoints.length - 1 && module.Config.SaberSettings.endCap == false) {
+              // Skip endCap generation if disabled
+              if (point == controlPoints.length - 1 && endCap == false) break;
 
-            } else {
-                for (let i = 0; i < module.Config.SaberSettings.verticalResolution; i++) {
-                    if (point == 0 && module.Config.SaberSettings.startCap == true) {
-                        v.push(0, module.Config.SaberSettings.zOffsetFrom, 0) 
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos(((i) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                    }
-                    v.push(
-                        //@ts-ignore
-                        profile.controlPoints[point].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                        profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                        //@ts-ignore
-                        profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                    )
-                    if(profile.controlPoints[point+1]) {
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point+1].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            profile.controlPoints[point+1].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                            //@ts-ignore
-                            profile.controlPoints[point+1].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point+1].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            profile.controlPoints[point+1].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                            //@ts-ignore
-                            profile.controlPoints[point+1].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-    
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point+1].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            profile.controlPoints[point+1].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                            //@ts-ignore
-                            profile.controlPoints[point+1].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                    } else {
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            module.Config.SaberSettings.zOffsetTo,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            module.Config.SaberSettings.zOffsetTo,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-    
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            module.Config.SaberSettings.zOffsetTo,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            profile.controlPoints[point].time * depth + module.Config.SaberSettings.zOffsetFrom,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
+              for (let i = 0; i < verticalResolution; i++) {
 
+                // Generate vertices for startCap (bottom of module)
+                if (point == 0 && startCap == true) {
+                  v = v.concat([
+                    0,
+                    zOffsetFrom, 
+                    0,
 
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            module.Config.SaberSettings.zOffsetTo,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin(((i+1) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                        v.push(
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.cos(((i) / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI),
-                            module.Config.SaberSettings.zOffsetTo,
-                            //@ts-ignore
-                            profile.controlPoints[point].value * thickness * Math.sin((i / module.Config.SaberSettings.verticalResolution) * 2 * Math.PI)
-                        )
-                        v.push(
-                            0, module.Config.SaberSettings.zOffsetTo, 0
-                        )
-                        
-                        
-                    }
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+                    
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin")
+                  ])
                 }
+
+                // Generate vertices from last value to connect faces to current value
+                if (controlPoints[point-1]) {
+                  v = v.concat([
+                    this.calculateVertex(controlPoints[point-1].value, thickness, i, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point-1].value, thickness, i, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point-1].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point-1].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point-1].value, thickness, i, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point-1].value, thickness, i, verticalResolution, "sin")
+                  ])
+                }
+
+                v = v.concat([
+                  this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                  controlPoints[point].time * depth + zOffsetFrom,
+                  this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin")
+                ]);
+                
+                // Generate next vertices, if possible
+                if(controlPoints[point+1]) {
+                  v = v.concat([
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    controlPoints[point+1].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point+1].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point+1].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+                  ]);
+
+                // Generate connection to endCap
+                } else {
+                  v = v.concat([
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    module.Config.SaberSettings.zOffsetTo,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    module.Config.SaberSettings.zOffsetTo,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    module.Config.SaberSettings.zOffsetTo,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+
+                  ]);
+
+                  // Generate endCap
+                  v = v.concat([
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    module.Config.SaberSettings.zOffsetTo,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    module.Config.SaberSettings.zOffsetTo,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+
+                    0,
+                    zOffsetTo,
+                    0
+                  ]);
+                }
+              }
             }
-        }
+            break;
+
+          // Linear
+          default:
+            for (let point = 0; point < controlPoints.length; point++) {
+
+              if (typeof controlPoints[point].value != "number") break;
+
+              // Skip endCap generation if disabled
+              if (point == controlPoints.length - 1 && endCap == false) break;
+
+              for (let i = 0; i < verticalResolution; i++) {
+
+                // Generate vertices for startCap (bottom of module)
+                if (point == 0 && startCap == true) {
+                  v = v.concat([
+                    0,
+                    zOffsetFrom, 
+                    0,
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+                    
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+                  ])
+
+                  // Generate constant vertices to connect to 1st control point in case time is not at 0
+                  v = v.concat([
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin")
+                  ])
+                }
+
+                v = v.concat([
+                  this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                  controlPoints[point].time * depth + zOffsetFrom,
+                  this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin")
+                ]);
+                
+                // Generate next vertices, if possible
+                if(controlPoints[point+1]) {
+                  v = v.concat([
+                    this.calculateVertex(controlPoints[point+1].value, thickness, i, verticalResolution, "cos"),
+                    controlPoints[point+1].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point+1].value, thickness, i, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point+1].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point+1].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point+1].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point+1].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point+1].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point+1].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+                  ]);
+
+                // Generate connection to endCap
+                } else {
+                  v = v.concat([
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    module.Config.SaberSettings.zOffsetTo,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    module.Config.SaberSettings.zOffsetTo,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    module.Config.SaberSettings.zOffsetTo,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    controlPoints[point].time * depth + zOffsetFrom,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+
+                  ]);
+
+                  // Generate endCap
+                  v = v.concat([
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "cos"),
+                    module.Config.SaberSettings.zOffsetTo,
+                    this.calculateVertex(controlPoints[point].value, thickness, i+1, verticalResolution, "sin"),
+
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "cos"),
+                    module.Config.SaberSettings.zOffsetTo,
+                    this.calculateVertex(controlPoints[point].value, thickness, i, verticalResolution, "sin"),
+
+                    0,
+                    zOffsetTo,
+                    0
+                  ]);
+                }
+              }
+            }
+
         }
         
         return v;
