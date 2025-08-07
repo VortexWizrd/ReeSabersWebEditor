@@ -8,5 +8,9 @@ export default interface IModule {
     Children: IModule[],
 
     // Functions
+    
+    /**
+     * Flatten the module tree
+     */
     flatten(): void
 }

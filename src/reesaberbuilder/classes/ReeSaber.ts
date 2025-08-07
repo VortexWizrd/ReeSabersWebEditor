@@ -17,7 +17,7 @@ export default class ReeSaber implements IReeSaber {
     Modules: IModule[] = [];
 
     constructor() {
-
+        
     }
 
     dataToModule(data: IModule): IModule {

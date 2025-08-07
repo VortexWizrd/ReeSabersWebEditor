@@ -27,7 +27,6 @@ export default class Viewport implements IViewport {
         this.renderer.setAnimationLoop(() => {
           this.moveCamera();
           if (this.file.Modules != this.lastModules) {
-            console.log("hi");
             this.loadModel();
             this.lastModules = this.file.Modules;
           }
