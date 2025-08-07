@@ -4,9 +4,11 @@ import * as THREE from 'three';
 import IViewport from '../interfaces/iViewport';
 import { BlurSaberModule, ReeSaber } from '../../reesaberbuilder';
 import Color from '../../reesaberbuilder/classes/Color';
+import IModule from '../../reesaberbuilder/interfaces/iModule';
 
 export default class Viewport implements IViewport {
     file: ReeSaber;
+    lastModules: IModule[] = [];
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -15,16 +17,20 @@ export default class Viewport implements IViewport {
 
     constructor(file: ReeSaber) {
         this.file = file;
+        this.lastModules = this.lastModules.concat(this.file.Modules)
 
         this.resizeWindow();
         window.addEventListener("resize", () => {
             this.resizeWindow();
         });
 
-        // please fix to loadmodel only on file update
         this.renderer.setAnimationLoop(() => {
           this.moveCamera();
-          this.loadModel();
+          if (this.file.Modules != this.lastModules) {
+            console.log("hi");
+            this.loadModel();
+            this.lastModules = this.file.Modules;
+          }
           this.renderer.render(this.scene, this.camera);
         })
 
@@ -81,7 +87,9 @@ export default class Viewport implements IViewport {
       })
     }
 
+    // TODO: fix to dispose better
     clearModel(): void {
+
         this.scene.remove( this.model );
         this.model = new THREE.Group();
     }

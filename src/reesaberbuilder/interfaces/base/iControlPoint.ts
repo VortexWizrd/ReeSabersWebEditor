@@ -1,4 +1,4 @@
-import IColor from "./base/iColor";
+import IColor from "./iColor";
 
 export default interface IControlPoint {
     time: number,

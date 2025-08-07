@@ -1,9 +1,9 @@
-import ILocalTransform from "../../../interfaces/iLocalTransform";
+import ILocalTransform from "../../../interfaces/base/iLocalTransform";
 import IModuleConfig from "../../../interfaces/iModuleConfig";
-import Color from "../../Color";
-import ControlPoint from "../../ControlPoint";
-import LocalTransform from "../../LocalTransform";
-import Vector3 from "../../Vector3";
+import Color from "../../base/Color";
+import ControlPoint from "../../base/ControlPoint";
+import LocalTransform from "../../base/LocalTransform";
+import Vector3 from "../../base/Vector3";
 import ModuleConfig from "./ModuleConfig";
 
 export default class BlurSaberConfig extends ModuleConfig implements IModuleConfig {

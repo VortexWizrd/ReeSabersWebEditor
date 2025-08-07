@@ -1,4 +1,4 @@
-import IVector3 from "../interfaces/base/iVector3";
+import IVector3 from "../../interfaces/base/iVector3";
 
 export default class Vector3 implements IVector3 {
     x: number;

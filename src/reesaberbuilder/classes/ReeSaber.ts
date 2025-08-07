@@ -1,10 +1,10 @@
 import IModule from "../interfaces/iModule";
 import IReeSaber from "../interfaces/iReeSaber";
-import LocalTransform from "./LocalTransform";
+import LocalTransform from "./base/LocalTransform";
 import BlurSaberModule from "./modules/BlurSaberModule";
 import EmptyModule from "./modules/EmptyModule";
 import SimpleTrailModule from "./modules/SimpleTrailModule";
-import Vector3 from "./Vector3";
+import Vector3 from "./base/Vector3";
 
 export default class ReeSaber implements IReeSaber {
     ModVersion = "0.3.14";

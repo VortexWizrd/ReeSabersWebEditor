@@ -1,4 +1,4 @@
-import ILocalTransform from "./iLocalTransform";
+import ILocalTransform from "./base/iLocalTransform";
 import IModule from "./iModule";
 
 export default interface IReeSaber {

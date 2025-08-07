@@ -1,6 +1,6 @@
 import IModule from "../../interfaces/iModule";
-import LocalTransform from "../LocalTransform";
-import Vector3 from "../Vector3";
+import LocalTransform from "../base/LocalTransform";
+import Vector3 from "../base/Vector3";
 import EmptyModule from "./EmptyModule";
 
 export default class SimpleTrailModule extends EmptyModule {

@@ -1,4 +1,4 @@
-import ILocalTransform from "./iLocalTransform";
+import ILocalTransform from "./base/iLocalTransform";
 
 export default interface IModuleConfig {
     SaberSettings?: object,

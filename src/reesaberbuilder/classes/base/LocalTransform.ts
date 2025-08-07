@@ -1,5 +1,5 @@
-import ILocalTransform from "../interfaces/iLocalTransform";
-import IVector3 from "../interfaces/base/iVector3";
+import ILocalTransform from "../../interfaces/base/iLocalTransform";
+import IVector3 from "../../interfaces/base/iVector3";
 
 export default class LocalTransform implements ILocalTransform {
     Position: IVector3;

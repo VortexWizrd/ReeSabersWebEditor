@@ -1,4 +1,4 @@
-import IColor from "../interfaces/base/iColor";
+import IColor from "../../interfaces/base/iColor";
 
 export default class Color implements IColor {
     r: number;

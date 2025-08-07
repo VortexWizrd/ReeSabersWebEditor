@@ -1,7 +1,7 @@
-import ILocalTransform from "../../../interfaces/iLocalTransform";
+import ILocalTransform from "../../../interfaces/base/iLocalTransform";
 import IModuleConfig from "../../../interfaces/iModuleConfig";
-import LocalTransform from "../../LocalTransform";
-import Vector3 from "../../Vector3";
+import LocalTransform from "../../base/LocalTransform";
+import Vector3 from "../../base/Vector3";
 
 export default class ModuleConfig implements IModuleConfig {
     SaberSettings?: object | undefined;

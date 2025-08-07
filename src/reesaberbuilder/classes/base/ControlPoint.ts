@@ -1,5 +1,5 @@
-import IColor from "../interfaces/base/iColor";
-import IControlPoint from "../interfaces/iControlPoint";
+import IColor from "../../interfaces/base/iColor";
+import IControlPoint from "../../interfaces/base/iControlPoint";
 
 export default class ControlPoint implements IControlPoint {
     time: number;
